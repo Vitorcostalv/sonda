@@ -1,6 +1,6 @@
 # SONDA · Website Security & Quality Analyzer
 
-Um observatório digital para investigar websites com evidências reais. A SONDA recebe uma URL pública, observa uma página com Chromium e produz verificações independentes de segurança, privacidade, acessibilidade e SEO. Não explora vulnerabilidades nem envia formulários.
+Um observatório digital para investigar websites com evidências reais. A SONDA recebe uma URL pública e produz verificações de segurança, privacidade e SEO. A versão publicada usa HTTP e HTML; o modo completo opcional acrescenta Chromium e acessibilidade automatizada. Não explora vulnerabilidades nem envia formulários.
 
 ![Interface real da SONDA](docs/assets/home-desktop.png)
 
@@ -40,11 +40,10 @@ Node 22 LTS, pnpm 10.13.1:
 
 ```sh
 pnpm install
-pnpm db:generate
-pnpm --filter @sonda/web dev
+pnpm dev:native
 ```
 
-Sem `API_URL`, o frontend apresenta erro explícito ao solicitar diagnósticos ou recursos da conta. Para testar o scanner real em uma página local controlada:
+O modo nativo inicia o frontend e o backend HTTP com armazenamento local. Se executar somente `pnpm dev` sem `API_URL`, token Blob ou `NATIVE_STORAGE_DIR`, os recursos que exigem backend apresentam erro explícito. Para testar o scanner completo em uma página local controlada:
 
 ```sh
 pnpm exec playwright install chromium

@@ -6,7 +6,9 @@ Foi implementado e provisionado um segundo modo de execução, nativo da Vercel:
 
 Navegador, screenshot, mixed content, scripts externos, axe e Lighthouse permanecem explicitamente indisponíveis/inconclusivos nesse modo. A nota é provisória com cobertura limitada. Banco usado nesse modo é storage privado de objetos, não PostgreSQL; execução usa Next.js after, não BullMQ. Essas diferenças são declaradas, não equivalências artificiais com a especificação original.
 
-Resultados posteriores: 113 testes locais aprovados, 2 testes da API completa ignorados localmente. Leitura/gravação condicional de Blob privado verificada com dados temporários removidos. Na aplicação publicada, o fluxo real de example.com concluiu com 17 resultados, nota provisória 38 e 80% de cobertura (valores do momento da coleta). Relatório sem capacidade retornou 404; exportação PDF retornou 200 e arquivo com assinatura %PDF. Filtro e expansão da evidência funcionaram no navegador. Screenshots reais estão em `docs/assets/`, incluindo `report-http-live.png`. CI Linux já aprovou lint/typecheck/test/build/E2E frontend/audit e secret scanning; integração do backend completo ainda em execução.
+Resultados posteriores: 113 testes locais aprovados, 2 testes da API completa ignorados localmente. Leitura/gravação condicional de Blob privado verificada com dados temporários removidos. Na aplicação publicada, o fluxo real de example.com concluiu com 17 resultados, nota provisória 38 e 80% de cobertura (valores do momento da coleta). Relatório sem capacidade retornou 404; exportação PDF retornou 200 e arquivo com assinatura %PDF. Filtro e expansão da evidência funcionaram no navegador. Screenshots reais estão em `docs/assets/`, incluindo `report-http-live.png`.
+
+[CI Linux 38006409052](https://github.com/Vitorcostalv/sonda/actions/runs/38006409052): todos os jobs aprovados. Quality validou lint/typecheck/113 testes/build/E2E frontend/auditoria; Gitleaks aprovou o histórico. Integração com containers aprovou migração e inicialização, bloqueio nativo de rede (privados/metadata/internet direto), 2 testes da API completa e 2 E2Es. O teste da API percorreu fila → navegador real → PostgreSQL → SSE → screenshot/PDF/JSON → controle de acesso. Essa prova usa alvo local aprovado, não libera o perfil público de navegador em produção.
 
 As seções abaixo documentam também o backend completo opcional; não são requisitos de instalação para o modo publicado sem Docker.
 
@@ -48,7 +50,7 @@ Sem Docker: `pnpm install`, `pnpm dev:native`, ou acessar o site publicado. Full
 - Scanner: navegação real Chromium na fixture, 17 resultados, cookies sem valores, axe-core executado e screenshot real.
 - E2E frontend: 1 aprovado, 1 fluxo completo ignorado até ambiente fullstack.
 - Auditoria de dependências de produção: nenhuma vulnerabilidade conhecida após atualização de swagger-ui/static e override deepmerge-ts 8.0.2.
-- Docker: binário ausente no ambiente Windows; testes fullstack e firewall enviados ao CI Linux. Resultados de CI/publicação serão registrados ao concluir execução.
+- Docker: binário ausente no ambiente Windows; no CI Linux o Compose, migrações, testes fullstack e firewall passaram. Nenhuma instalação Docker é necessária para usar a versão publicada.
 
 ## 8. Riscos conhecidos
 
@@ -60,25 +62,25 @@ O modo HTTP já está disponível na Vercel e dispensa essa infraestrutura. Para
 
 ## 10. Checklist de conclusão
 
-| Critério                          | Estado verificável                                         |
-| --------------------------------- | ---------------------------------------------------------- |
-| Monorepo compila                  | Sim                                                        |
-| Frontend/backend comunicam        | Implementado; prova fullstack depende do CI                |
-| Banco/migrações funcionam         | Prisma gera cliente/SQL; execução PostgreSQL depende do CI |
-| Worker executa jobs reais         | Implementado; execução fila/persistência depende do CI     |
-| 13 regras SEC                     | Sim, testadas                                              |
-| SSRF efetivo e teste de rede      | Código/barreira/testes presentes; execução Linux pendente  |
-| SSE real                          | Implementado; validação fullstack pendente                 |
-| Relatórios persistidos            | Implementado; validação fullstack pendente                 |
-| Exportações                       | Implementadas; validação fullstack pendente                |
-| Dashboard com dados reais         | Sim, sem seed/mock; sem backend informa erro               |
-| Autorização de privados           | Implementada no servidor; teste fullstack pendente         |
-| Adicionais reais ou indisponíveis | Sim; Lighthouse explicitamente inconclusivo                |
-| Testes passando                   | Locais aprovados; infraestrutura ignorada, não aprovada    |
-| Build produção                    | Sim                                                        |
-| Docker funcionando                | Não verificado localmente; CI pendente                     |
-| README fiel                       | Sim, limites explícitos                                    |
-| Minimização de dados              | Valores de cookies ausentes no teste real                  |
-| Sem botões com ações fictícias    | Ações ligadas à API; erros de disponibilidade explícitos   |
+| Critério                          | Estado verificável                                                     |
+| --------------------------------- | ---------------------------------------------------------------------- |
+| Monorepo compila                  | Sim; local e CI                                                        |
+| Frontend/backend comunicam        | Modo HTTP online e fullstack no CI                                     |
+| Banco/migrações funcionam         | PostgreSQL no CI; Blob privado online                                  |
+| Worker executa jobs reais         | Fila e persistência no CI; HTTP online usa after                       |
+| 13 regras SEC                     | Testadas; HTTP declara 2 inconclusivas                                 |
+| SSRF efetivo e teste de rede      | Validação unitária e barreira Linux aprovadas; perfil público pendente |
+| SSE real                          | API fullstack no CI; fluxo HTTP online                                 |
+| Relatórios persistidos            | PostgreSQL no CI e Blob online                                         |
+| Exportações                       | PDF/JSON no CI; PDF online aprovado                                    |
+| Dashboard com dados reais         | Sem seed/mock; usa API real                                            |
+| Autorização de privados           | Teste fullstack aprovado; online sem capacidade retorna 404            |
+| Adicionais reais ou indisponíveis | Axe/screenshot no CI; HTTP e Lighthouse declaram limites               |
+| Testes passando                   | 113 unitários/integrados, 2 API e 2 E2E no CI                          |
+| Build produção                    | Sim; Vercel Ready                                                      |
+| Docker funcionando                | CI Linux aprovado; não necessário para modo publicado                  |
+| README fiel                       | Sim, limites explícitos                                                |
+| Minimização de dados              | Cookies sem valores no teste de navegador real                         |
+| Sem botões com ações fictícias    | Ações ligadas à API; indisponibilidade explícita                       |
 
 O projeto ainda não cumpre todos os critérios para ser declarado completo para produção. Pendências são explicitadas; nenhum resultado de análise ou disponibilidade foi inventado.
