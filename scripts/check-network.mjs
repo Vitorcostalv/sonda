@@ -5,7 +5,7 @@ const checks = [
     "runner",
     "node",
     "-e",
-    `const net=require('net');let results=0;for(const host of ['10.0.0.1','169.254.169.254','1.1.1.1']){const s=net.connect({host,port:80});s.setTimeout(1500);s.on('connect',()=>process.exit(1));s.on('error',()=>{if(++results===3)process.exit(0)});s.on('timeout',()=>{s.destroy();if(++results===3)process.exit(0)});}`,
+    `const net=require('net');let results=0;for(const host of ['10.0.0.1','169.254.169.254','1.1.1.1']){let done=false;const finish=()=>{if(done)return;done=true;if(++results===3)process.exit(0)};const s=net.connect({host,port:80});s.setTimeout(1500);s.on('connect',()=>process.exit(1));s.on('error',finish);s.on('timeout',()=>{finish();s.destroy()});}`,
   ],
   [
     "runner",

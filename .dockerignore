@@ -5,7 +5,7 @@ node_modules
 .env
 .env.*
 .vercel
-storage
+/storage
 test-results
 playwright-report
 **/*.tsbuildinfo

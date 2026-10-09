@@ -17,6 +17,7 @@ const worker = new Worker<{ scanId: string }>(
       data: { status: "RUNNING", startedAt: new Date() },
     });
     const controller = new AbortController();
+    let pendingStorageKey: string | undefined;
     const timeout = setTimeout(() => controller.abort(), 90000);
     const cancellation = setInterval(() => {
       void db.scan
@@ -97,6 +98,7 @@ const worker = new Worker<{ scanId: string }>(
       if (result.screenshot) {
         storageKey = `${randomUUID()}.png`;
         await storage.put(storageKey, Buffer.from(result.screenshot, "base64"));
+        pendingStorageKey = storageKey;
       }
       const { browserError: _browserError, ...safeContext } = result.context;
       await db.$transaction(async (tx) => {
@@ -158,7 +160,12 @@ const worker = new Worker<{ scanId: string }>(
           },
         });
       });
+      pendingStorageKey = undefined;
     } catch (error) {
+      if (pendingStorageKey)
+        await storage
+          .delete(pendingStorageKey)
+          .catch(() => console.error("Orphan evidence cleanup failed"));
       await db.scan.updateMany({
         where: { id: s.id, status: { not: "CANCELLED" } },
         data: {

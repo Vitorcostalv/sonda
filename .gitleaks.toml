@@ -1,0 +1,9 @@
+[extend]
+useDefault = true
+
+# Test-only password, never an application credential. Keep the exception scoped
+# to this exact synthetic value; do not exempt files or general password patterns.
+[[allowlists]]
+description = "Synthetic password used by the scrypt unit test"
+regexTarget = "secret"
+regexes = ['''long-passphrase-fixture-2026''']
