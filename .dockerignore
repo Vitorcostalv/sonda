@@ -1,0 +1,11 @@
+node_modules
+**/node_modules
+**/.next
+.git
+.env
+.env.*
+.vercel
+storage
+test-results
+playwright-report
+**/*.tsbuildinfo

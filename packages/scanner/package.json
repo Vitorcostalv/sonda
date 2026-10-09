@@ -1,0 +1,22 @@
+{
+  "name": "@sonda/scanner",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./security": "./src/security.ts",
+    "./rules": "./src/rules.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@sonda/contracts": "workspace:*",
+    "@axe-core/playwright": "^4.10.0",
+    "playwright": "1.64.0",
+    "ipaddr.js": "^2.2.0",
+    "undici": "^7.16.0",
+    "tldts": "^7.0.0"
+  }
+}

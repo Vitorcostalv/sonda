@@ -1,0 +1,131 @@
+generator client {
+ provider = "prisma-client-js"
+}
+datasource db {
+ provider = "postgresql"
+ url = env("DATABASE_URL")
+}
+model User {
+ id String @id @default(uuid()) @db.Uuid
+ name String
+ email String @unique
+ passwordHash String
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ projects Project[]
+ scans Scan[]
+ sessions Session[]
+}
+model Session {
+ id String @id @default(uuid()) @db.Uuid
+ tokenHash String @unique
+ userId String @db.Uuid
+ user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+ expiresAt DateTime
+ @@index([expiresAt])
+}
+model Project {
+ id String @id @default(uuid()) @db.Uuid
+ ownerId String @db.Uuid
+ owner User @relation(fields:[ownerId],references:[id],onDelete:Cascade)
+ name String
+ normalizedUrl String
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ scans Scan[]
+ @@index([ownerId,createdAt])
+}
+model Scan {
+ id String @id @default(uuid()) @db.Uuid
+ projectId String? @db.Uuid
+ project Project? @relation(fields:[projectId],references:[id],onDelete:SetNull)
+ requestedBy String? @db.Uuid
+ user User? @relation(fields:[requestedBy],references:[id],onDelete:Cascade)
+ originalUrl String
+ normalizedUrl String
+ finalUrl String?
+ status String @default("QUEUED")
+ progress Int @default(0)
+ score Int?
+ coverage Int?
+ scoringVersion String?
+ capabilityHash String @unique
+ expiresAt DateTime
+ activeKey String? @unique
+ contextJson Json?
+ startedAt DateTime?
+ finishedAt DateTime?
+ errorCode String?
+ createdAt DateTime @default(now())
+ steps ScanStep[]
+ findings Finding[]
+ resources NetworkResource[]
+ evidence ScanEvidence[]
+ shares ShareLink[]
+ @@index([requestedBy,createdAt])
+ @@index([projectId,createdAt])
+ @@index([expiresAt])
+}
+model ScanStep {
+ id Int @id @default(autoincrement())
+ scanId String @db.Uuid
+ scan Scan @relation(fields:[scanId],references:[id],onDelete:Cascade)
+ name String
+ status String
+ startedAt DateTime @default(now())
+ finishedAt DateTime?
+ message String?
+ @@index([scanId,id])
+}
+model Finding {
+ id String @id @default(uuid()) @db.Uuid
+ scanId String @db.Uuid
+ scan Scan @relation(fields:[scanId],references:[id],onDelete:Cascade)
+ ruleId String
+ category String
+ status String
+ severity String
+ title String
+ description String
+ evidenceJson Json
+ recommendation String
+ documentationUrl String
+ weight Int
+ createdAt DateTime @default(now())
+ evidence ScanEvidence[]
+ @@unique([scanId,ruleId])
+ @@index([scanId,severity,category])
+}
+model NetworkResource {
+ id String @id @default(uuid()) @db.Uuid
+ scanId String @db.Uuid
+ scan Scan @relation(fields:[scanId],references:[id],onDelete:Cascade)
+ sanitizedUrl String
+ resourceType String
+ origin String
+ responseStatus Int?
+ protocol String
+ isThirdParty Boolean
+ @@index([scanId])
+}
+model ScanEvidence {
+ id String @id @default(uuid()) @db.Uuid
+ scanId String @db.Uuid
+ scan Scan @relation(fields:[scanId],references:[id],onDelete:Cascade)
+ findingId String? @db.Uuid
+ finding Finding? @relation(fields:[findingId],references:[id],onDelete:SetNull)
+ type String
+ storageKey String
+ createdAt DateTime @default(now())
+ @@index([scanId])
+}
+model ShareLink {
+ id String @id @default(uuid()) @db.Uuid
+ scanId String @db.Uuid
+ scan Scan @relation(fields:[scanId],references:[id],onDelete:Cascade)
+ tokenHash String @unique
+ expiresAt DateTime
+ revokedAt DateTime?
+ createdAt DateTime @default(now())
+ @@index([scanId])
+}

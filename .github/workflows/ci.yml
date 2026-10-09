@@ -1,0 +1,55 @@
+name: Quality & security
+on: [push, pull_request, workflow_dispatch]
+permissions: { contents: read }
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm db:generate
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm lint && pnpm typecheck && pnpm test && pnpm build
+      - run: pnpm test:e2e
+      - run: pnpm audit --prod --audit-level=high
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with: { name: test-traces, path: test-results }
+  container-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile && pnpm db:generate
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Configure disposable local secrets
+        run: |
+          printf 'POSTGRES_PASSWORD=%s\nRUNNER_TOKEN=%s\n' "$(openssl rand -hex 24)" "$(openssl rand -hex 32)" > .env
+      - run: docker compose up --build -d --wait --wait-timeout 240
+      - run: node scripts/check-network.mjs
+      - run: pnpm exec vitest run tests/api.integration.test.ts
+        env: { RUN_API_INTEGRATION: "true" }
+      - run: pnpm test:e2e
+        env: { E2E_FULL_STACK: "true", E2E_EXTERNAL_SERVER: "true" }
+      - name: Container logs
+        if: failure()
+        run: docker compose logs --tail 80
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: container-traces, path: test-results }
+      - run: docker compose down -v
+        if: always()
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Scan Git history with Gitleaks
+        run: |
+          docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.24.3 detect --source=/repo --redact --no-banner

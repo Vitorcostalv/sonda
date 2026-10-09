@@ -1,0 +1,17 @@
+{
+  "name": "@sonda/runner",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "start": "tsx src/main.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@sonda/scanner": "workspace:*",
+    "fastify": "^5.12.5",
+    "tsx": "^4.20.0",
+    "zod": "^3.25.0"
+  }
+}

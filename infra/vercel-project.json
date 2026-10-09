@@ -1,0 +1,1 @@
+{"framework":"nextjs","rootDirectory":"apps/web","nodeVersion":"22.x","buildCommand":"pnpm --filter @sonda/web build","installCommand":"pnpm install --frozen-lockfile","outputDirectory":null}

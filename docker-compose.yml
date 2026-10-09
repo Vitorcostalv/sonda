@@ -1,0 +1,150 @@
+name: sonda
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: sonda
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: sonda
+    volumes: [postgres-data:/var/lib/postgresql/data]
+    networks: [control]
+    healthcheck:
+      {
+        test: [CMD-SHELL, "pg_isready -U sonda"],
+        interval: 5s,
+        timeout: 3s,
+        retries: 20,
+      }
+    restart: unless-stopped
+  redis:
+    image: redis:7-alpine
+    command: [redis-server, --appendonly, "yes"]
+    volumes: [redis-data:/data]
+    networks: [control]
+    healthcheck:
+      { test: [CMD, redis-cli, ping], interval: 5s, timeout: 3s, retries: 20 }
+    restart: unless-stopped
+  migrate:
+    build: { context: ., dockerfile: infra/Dockerfile, target: migrate }
+    environment:
+      DATABASE_URL: postgresql://sonda:${POSTGRES_PASSWORD}@postgres:5432/sonda
+    networks: [control]
+    depends_on: { postgres: { condition: service_healthy } }
+  api:
+    build: { context: ., dockerfile: infra/Dockerfile, target: api }
+    environment:
+      DATABASE_URL: postgresql://sonda:${POSTGRES_PASSWORD}@postgres:5432/sonda
+      REDIS_URL: redis://redis:6379
+      WEB_ORIGIN: http://localhost:3000
+      FIXTURE_URL: http://172.30.20.4:8080
+      PUBLIC_SCANS_ENABLED: "false"
+      STORAGE_DIR: /app/storage
+    ports: ["4000:4000"]
+    volumes: [evidence:/app/storage]
+    networks: [control]
+    depends_on:
+      {
+        migrate: { condition: service_completed_successfully },
+        redis: { condition: service_healthy },
+      }
+    healthcheck:
+      {
+        test:
+          [
+            CMD,
+            node,
+            -e,
+            'fetch("http://localhost:4000/health/ready").then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))',
+          ],
+        interval: 10s,
+        timeout: 5s,
+        retries: 10,
+      }
+    restart: unless-stopped
+  worker:
+    build: { context: ., dockerfile: infra/Dockerfile, target: worker }
+    environment:
+      DATABASE_URL: postgresql://sonda:${POSTGRES_PASSWORD}@postgres:5432/sonda
+      REDIS_URL: redis://redis:6379
+      RUNNER_URL: http://runner:4100
+      RUNNER_TOKEN: ${RUNNER_TOKEN:?Set RUNNER_TOKEN in .env}
+      STORAGE_DIR: /app/storage
+    volumes: [evidence:/app/storage]
+    networks: [control]
+    depends_on:
+      {
+        api: { condition: service_healthy },
+        runner: { condition: service_healthy },
+      }
+    deploy: { resources: { limits: { cpus: "1", memory: 512M } } }
+    restart: unless-stopped
+  runner:
+    build: { context: ., dockerfile: infra/runner.Dockerfile }
+    cap_add: [NET_ADMIN]
+    environment:
+      RUNNER_TOKEN: ${RUNNER_TOKEN}
+      FIXTURE_URL: http://172.30.20.4:8080
+      EGRESS_PROXY: http://172.30.20.3:4200
+      PUBLIC_SCANS_ENABLED: "false"
+      NETWORK_ISOLATION_VERIFIED: "false"
+    networks:
+      control: {}
+      browser: { ipv4_address: 172.30.20.2 }
+    depends_on: [fixture]
+    shm_size: 512mb
+    init: true
+    deploy: { resources: { limits: { cpus: "2", memory: 2G } } }
+    healthcheck:
+      {
+        test:
+          [
+            CMD,
+            node,
+            -e,
+            'fetch("http://localhost:4100/health/live").then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))',
+          ],
+        interval: 10s,
+        timeout: 5s,
+        retries: 10,
+      }
+    restart: unless-stopped
+  fixture:
+    image: node:22-alpine
+    command: [node, /fixture/server.mjs]
+    user: node
+    volumes: ["./tests/fixtures:/fixture:ro"]
+    networks:
+      browser: { ipv4_address: 172.30.20.4 }
+    restart: unless-stopped
+  web:
+    build: { context: ., dockerfile: infra/Dockerfile, target: web }
+    environment:
+      API_URL: http://api:4000
+      WEB_ORIGIN: http://localhost:3000
+    ports: ["3000:3000"]
+    networks: [control, frontend]
+    depends_on: { api: { condition: service_healthy } }
+    healthcheck:
+      {
+        test:
+          [
+            CMD,
+            node,
+            -e,
+            'fetch("http://localhost:3000").then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))',
+          ],
+        interval: 15s,
+        timeout: 5s,
+        retries: 10,
+      }
+    restart: unless-stopped
+networks:
+  control: { internal: true }
+  browser:
+    internal: true
+    ipam: { config: [{ subnet: 172.30.20.0/24 }] }
+  frontend: {}
+volumes:
+  postgres-data: {}
+  redis-data: {}
+  evidence: {}

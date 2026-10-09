@@ -1,0 +1,24 @@
+# Opt-in only AFTER external network and Chromium sandbox verification.
+# IPv6 egress is intentionally blocked in this first production profile.
+services:
+  egress:
+    build: { context: ., dockerfile: infra/Dockerfile, target: egress }
+    cap_add: [NET_ADMIN]
+    dns: [1.1.1.1]
+    networks:
+      browser: { ipv4_address: 172.30.20.3 }
+      internet: {}
+    deploy: { resources: { limits: { cpus: "1", memory: 512M } } }
+    restart: unless-stopped
+  runner:
+    environment:
+      PUBLIC_SCANS_ENABLED: ${PUBLIC_SCANS_ENABLED:-false}
+      NETWORK_ISOLATION_VERIFIED: ${NETWORK_ISOLATION_VERIFIED:-false}
+    depends_on: [egress]
+    security_opt: ["seccomp=./infra/chromium-seccomp.json"]
+  api:
+    environment:
+      PUBLIC_SCANS_ENABLED: ${PUBLIC_SCANS_ENABLED:-false}
+      NETWORK_ISOLATION_VERIFIED: ${NETWORK_ISOLATION_VERIFIED:-false}
+networks:
+  internet: {}
