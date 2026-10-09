@@ -21,6 +21,7 @@ import {
 import { useState } from "react";
 import { api } from "@/lib/api";
 import { ErrorState } from "./ui";
+import { RadarField } from "./radar-field";
 const inputSchema = z.object({
   url: z
     .string()
@@ -139,35 +140,7 @@ export function Home() {
             </span>
           </div>
         </div>
-        <div className="radar-panel" aria-hidden="true">
-          <div className="radar-coord top">
-            OBSERVATION FIELD <span>01 / ACTIVE</span>
-          </div>
-          <div className="radar">
-            <div className="radar-ring ring1" />
-            <div className="radar-ring ring2" />
-            <div className="radar-ring ring3" />
-            <div className="radar-ring ring4" />
-            <div className="radar-cross horizontal" />
-            <div className="radar-cross vertical" />
-            <div className="radar-sweep" />
-            <div className="radar-core">
-              <ShieldCheck size={35} strokeWidth={1.2} />
-            </div>
-            <span className="blip b1" />
-            <span className="blip b2" />
-            <span className="blip b3" />
-            <span className="radar-label rl1">HTTPS / TLS</span>
-            <span className="radar-label rl2">HEADERS</span>
-            <span className="radar-label rl3">COOKIES</span>
-            <span className="radar-axis north">N</span>
-            <span className="radar-axis east">E</span>
-          </div>
-          <div className="radar-coord bottom">
-            <span>PASSIVE INSPECTION</span>
-            <span className="mint">+ SINAIS, NÃO SUPOSIÇÕES</span>
-          </div>
-        </div>
+        <RadarField />
       </section>
       <section className="scan-console">
         <div className="console-heading">

@@ -359,154 +359,143 @@ a:hover {
 }
 .radar-panel {
   position: relative;
-  max-width: 430px;
+  max-width: 450px;
   justify-self: end;
   width: 100%;
   border-left: 1px solid #1e2c36;
   border-right: 1px solid #1e2c36;
-  padding: 10px 20px;
+  padding: 10px 14px;
   background-image:
-    linear-gradient(#1e2c3630 1px, transparent 1px),
-    linear-gradient(90deg, #1e2c3630 1px, transparent 1px);
-  background-size: 22px 22px;
+    radial-gradient(ellipse at 50% 48%, #153b352e, transparent 70%),
+    linear-gradient(#1e2c3620 1px, transparent 1px),
+    linear-gradient(90deg, #1e2c3620 1px, transparent 1px);
+  background-size:
+    auto,
+    22px 22px,
+    22px 22px;
 }
 .radar-coord {
   font: 7px var(--font-mono);
   letter-spacing: 0.06em;
   color: #72899a;
   display: flex;
+  align-items: center;
   justify-content: space-between;
 }
-.radar {
-  aspect-ratio: 1;
-  position: relative;
-  width: 86%;
-  margin: 12px auto;
-}
-.radar-ring {
-  border: 1px solid #294740;
-  position: absolute;
-  border-radius: 50%;
-  inset: 0;
-}
-.ring1 {
-  inset: 0;
-  border-color: #385e5460;
-}
-.ring2 {
-  inset: 12%;
-  border-color: #325d5060;
-}
-.ring3 {
-  inset: 25%;
-  border-color: #3b6d5e70;
-}
-.ring4 {
-  inset: 37%;
-  border-style: dashed;
-  border-color: #47847480;
-}
-.radar-cross {
-  position: absolute;
-  background: #2e4d4450;
-}
-.radar-cross.horizontal {
-  height: 1px;
-  top: 50%;
-  width: 116%;
-  left: -8%;
-}
-.radar-cross.vertical {
-  width: 1px;
-  left: 50%;
-  height: 116%;
-  top: -8%;
-}
-.radar-sweep {
-  position: absolute;
-  inset: 1%;
-  border-radius: 50%;
-  background: conic-gradient(
-    from 15deg,
-    transparent 0deg,
-    #42d6c407 65deg,
-    #42d6c41e 110deg,
-    transparent 111deg
-  );
-  animation: sweep 30s linear infinite;
-}
-.radar-core {
-  position: absolute;
-  inset: 39%;
-  background: #13312c;
-  border: 1px solid #4b8a76;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  color: var(--accent);
-  box-shadow: 0 0 45px #42d6c40d;
-}
-.blip {
-  position: absolute;
-  height: 6px;
-  width: 6px;
-  background: var(--accent);
-  border-radius: 50%;
-  box-shadow:
-    0 0 0 5px #42d6c410,
-    0 0 14px #42d6c430;
-}
-.b1 {
-  top: 19%;
-  left: 66%;
-}
-.b2 {
-  top: 64%;
-  left: 19%;
-  background: var(--warning);
-}
-.b3 {
-  top: 73%;
-  left: 72%;
-}
-.radar-label {
-  position: absolute;
-  font: 7px var(--font-mono);
-  letter-spacing: 0.05em;
-  background: var(--bg);
-  padding: 4px 5px;
-  border: 1px solid #2a413e;
-  color: #9cc4b8;
-}
-.rl1 {
-  top: 12%;
-  left: 70%;
-}
-.rl2 {
-  top: 67%;
-  left: -3%;
-  color: #ceae7b;
-}
-.rl3 {
-  top: 76%;
-  left: 75%;
-}
-.radar-axis {
-  position: absolute;
-  font: 7px var(--font-mono);
-  color: #5b786f;
-}
-.north {
-  top: -3%;
-  left: 49%;
-}
-.east {
-  right: -3%;
-  top: 49%;
-}
 .radar-coord.bottom {
-  padding-top: 6px;
+  padding-top: 10px;
   border-top: 1px solid #263c354f;
+}
+.field-scene {
+  perspective: 900px;
+  margin: 16px 0 12px;
+}
+.field-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+  transform: rotateY(-8deg) rotateX(5deg);
+  transition: transform 700ms ease;
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .radar-panel:hover .field-svg {
+    transform: rotateY(6deg) rotateX(-3deg);
+  }
+}
+.field-body {
+  animation: field-float 8s ease-in-out infinite;
+  transform-origin: 200px 200px;
+}
+.field-orbit {
+  stroke-width: 1.2;
+  stroke-dasharray: 130 28 2 28;
+  animation: field-orbit 24s linear infinite;
+}
+.field-orbit.secondary {
+  animation-direction: reverse;
+  animation-duration: 32s;
+}
+.field-satellite {
+  transform-origin: 200px 200px;
+  animation: sweep 36s linear infinite;
+}
+.field-scanline {
+  animation: field-scan 7s ease-in-out infinite;
+}
+.field-meridian {
+  animation: field-breathe 8s ease-in-out infinite;
+}
+.field-core {
+  filter: drop-shadow(0 0 12px #42d6c424);
+}
+.field-text {
+  font: 8px var(--font-mono);
+  letter-spacing: 0.7px;
+}
+.field-motion-toggle {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  color: #9bc8bf;
+  background: transparent;
+  border: 1px solid #28443e;
+  padding: 6px 7px;
+  font: inherit;
+  cursor: pointer;
+}
+.field-motion-toggle:hover {
+  color: #aaffea;
+  border-color: #528c7f;
+}
+.radar-panel[data-paused="true"] * {
+  animation-play-state: paused;
+}
+@keyframes field-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+@keyframes field-orbit {
+  to {
+    stroke-dashoffset: -752;
+  }
+}
+@keyframes field-scan {
+  0%,
+  100% {
+    transform: translateY(-105px);
+    opacity: 0;
+  }
+  15%,
+  85% {
+    opacity: 0.45;
+  }
+  50% {
+    transform: translateY(105px);
+    opacity: 0;
+  }
+}
+@keyframes field-breathe {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .field-svg {
+    transform: none;
+  }
+  .field-motion-toggle {
+    display: none;
+  }
 }
 .scan-console {
   border: 1px solid #30434b;
