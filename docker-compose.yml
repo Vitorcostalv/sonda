@@ -41,7 +41,7 @@ services:
       STORAGE_DIR: /app/storage
     ports: ["4000:4000"]
     volumes: [evidence:/app/storage]
-    networks: [control]
+    networks: [control, frontend]
     depends_on:
       {
         migrate: { condition: service_completed_successfully },

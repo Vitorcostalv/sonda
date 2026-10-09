@@ -12,6 +12,7 @@ await page.evaluate(() => document.fonts.ready);
 await page.waitForTimeout(500);
 await page.screenshot({ path: "docs/assets/home-desktop.png", fullPage: true });
 await page.setViewportSize({ width: 390, height: 844 });
+await page.waitForTimeout(300);
 await page.screenshot({ path: "docs/assets/home-mobile.png", fullPage: true });
 await browser.close();
 console.log("Screenshots captured from the real running application.");

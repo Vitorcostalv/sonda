@@ -6,7 +6,7 @@ Foi implementado e provisionado um segundo modo de execução, nativo da Vercel:
 
 Navegador, screenshot, mixed content, scripts externos, axe e Lighthouse permanecem explicitamente indisponíveis/inconclusivos nesse modo. A nota é provisória com cobertura limitada. Banco usado nesse modo é storage privado de objetos, não PostgreSQL; execução usa Next.js after, não BullMQ. Essas diferenças são declaradas, não equivalências artificiais com a especificação original.
 
-Resultados posteriores: 113 testes locais aprovados, 2 testes da API completa ignorados localmente. Leitura/gravação condicional de Blob privado verificada com dados temporários removidos. Uma auditoria HTTP real de example.com confirmou TLS válido, 17 resultados e 80% de cobertura (valores reais do momento da coleta). CI Linux já aprovou lint/typecheck/test/build/E2E frontend/audit e secret scanning; integração do backend completo ainda em execução. Verificação do fluxo na versão publicada será registrada abaixo ao concluir.
+Resultados posteriores: 113 testes locais aprovados, 2 testes da API completa ignorados localmente. Leitura/gravação condicional de Blob privado verificada com dados temporários removidos. Na aplicação publicada, o fluxo real de example.com concluiu com 17 resultados, nota provisória 38 e 80% de cobertura (valores do momento da coleta). Relatório sem capacidade retornou 404; exportação PDF retornou 200 e arquivo com assinatura %PDF. Filtro e expansão da evidência funcionaram no navegador. Screenshots reais estão em `docs/assets/`, incluindo `report-http-live.png`. CI Linux já aprovou lint/typecheck/test/build/E2E frontend/audit e secret scanning; integração do backend completo ainda em execução.
 
 As seções abaixo documentam também o backend completo opcional; não são requisitos de instalação para o modo publicado sem Docker.
 
@@ -38,13 +38,13 @@ Lighthouse efetivo (sempre INCONCLUSIVE), marcação visual por seletor de achad
 
 ## 6. Execução
 
-`pnpm install`, `pnpm db:generate`, `pnpm --filter @sonda/web dev`. Fullstack: configurar `.env` local e `docker compose up --build -d --wait`; analisar `http://172.30.20.4:8080/`. `node scripts/check-network.mjs`. Testes: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, `pnpm test:e2e`, `pnpm audit --prod --audit-level=high`. Detalhes no README.
+Sem Docker: `pnpm install`, `pnpm dev:native`, ou acessar o site publicado. Fullstack opcional: configurar `.env` local e `docker compose up --build -d --wait`; analisar `http://172.30.20.4:8080/`. `node scripts/check-network.mjs`. Testes: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, `pnpm test:e2e`, `pnpm audit --prod --audit-level=high`. Detalhes no README.
 
 ## 7. Resultados observados no Windows
 
 - Typecheck: 9 pacotes aprovados.
 - Build Next.js: aprovado, todas as rotas geradas.
-- Vitest: 109 aprovados, 2 testes da API ignorados por dependência de serviços Docker.
+- Vitest: 113 aprovados, 2 testes da API completa ignorados por dependência de serviços Docker.
 - Scanner: navegação real Chromium na fixture, 17 resultados, cookies sem valores, axe-core executado e screenshot real.
 - E2E frontend: 1 aprovado, 1 fluxo completo ignorado até ambiente fullstack.
 - Auditoria de dependências de produção: nenhuma vulnerabilidade conhecida após atualização de swagger-ui/static e override deepmerge-ts 8.0.2.
@@ -54,9 +54,9 @@ Lighthouse efetivo (sempre INCONCLUSIVE), marcação visual por seletor de achad
 
 Perfil público não verificado na infraestrutura final; browser/kernel devem ser atualizados; CSP do frontend permite inline para hidratação Next; proxy Vercel altera identidade IP vista pelo backend; compartilhamento usa token de capacidade em URL; paths e screenshots públicos podem conter PII publicada; limite agregado de tráfego ainda incompleto. Consulte threat-model.md.
 
-## 9. Produção pendente
+## 9. Produção do modo completo opcional
 
-Hospedagem Linux para API/worker/runner/egress, PostgreSQL e Redis, TLS/ingress, segredo runner, storage privado e backups, gateway com origem/IP autenticados, validação do sandbox e rede, depois flags de scans públicos. Na Vercel, conectar API_URL e WEB_ORIGIN quando esse backend existir. A disponibilidade do frontend não significa scanner público disponível.
+O modo HTTP já está disponível na Vercel e dispensa essa infraestrutura. Para habilitar o navegador completo: hospedagem Linux para API/worker/runner/egress, PostgreSQL e Redis, TLS/ingress, segredo runner, storage privado e backups, gateway com origem/IP autenticados, validação do sandbox e rede, depois flags de scans públicos. Na Vercel, conectar API_URL e WEB_ORIGIN quando esse backend existir.
 
 ## 10. Checklist de conclusão
 
