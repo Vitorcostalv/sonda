@@ -1,5 +1,15 @@
 # Entrega SONDA · 9 de outubro de 2026
 
+## Atualização solicitada: sem Docker
+
+Foi implementado e provisionado um segundo modo de execução, nativo da Vercel: auditoria HTTP real em funções Next.js e armazenamento privado Vercel Blob, com conta/sessão, projetos, histórico, SSE persistido, exportação JSON/PDF, comparação e compartilhamento revogável. Não exige serviços instalados pelo usuário. Domínio publicado: https://sonda-snowy.vercel.app. Repositório: https://github.com/Vitorcostalv/sonda.
+
+Navegador, screenshot, mixed content, scripts externos, axe e Lighthouse permanecem explicitamente indisponíveis/inconclusivos nesse modo. A nota é provisória com cobertura limitada. Banco usado nesse modo é storage privado de objetos, não PostgreSQL; execução usa Next.js after, não BullMQ. Essas diferenças são declaradas, não equivalências artificiais com a especificação original.
+
+Resultados posteriores: 113 testes locais aprovados, 2 testes da API completa ignorados localmente. Leitura/gravação condicional de Blob privado verificada com dados temporários removidos. Uma auditoria HTTP real de example.com confirmou TLS válido, 17 resultados e 80% de cobertura (valores reais do momento da coleta). CI Linux já aprovou lint/typecheck/test/build/E2E frontend/audit e secret scanning; integração do backend completo ainda em execução. Verificação do fluxo na versão publicada será registrada abaixo ao concluir.
+
+As seções abaixo documentam também o backend completo opcional; não são requisitos de instalação para o modo publicado sem Docker.
+
 ## 1. Arquitetura
 
 Monorepo pnpm/Turbo com 9 pacotes de aplicação/infra e bibliotecas. Next.js frontend, Fastify API, BullMQ worker, runner isolado Playwright/axe, proxy egress com IP pinning, Prisma/PostgreSQL e Redis, storage local/S3. [Arquitetura detalhada](architecture.md).

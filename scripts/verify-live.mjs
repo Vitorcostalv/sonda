@@ -2,7 +2,10 @@
 import { chromium, expect } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
 const browser = await chromium.launch();
-const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+const page = await browser.newPage({
+  baseURL: process.env.LIVE_URL ?? "https://sonda-snowy.vercel.app",
+  viewport: { width: 1440, height: 1000 },
+});
 try {
   await page.goto(process.env.LIVE_URL ?? "https://sonda-snowy.vercel.app");
   await expect(

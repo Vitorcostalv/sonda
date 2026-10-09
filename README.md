@@ -6,13 +6,17 @@ Um observatório digital para investigar websites com evidências reais. A SONDA
 
 ## Estado do projeto
 
-Implementação inicial funcional em alvo aprovado. **Scans arbitrários ficam desabilitados por padrão.** O frontend compila e funciona sem PostgreSQL ou Redis; exibe indisponibilidade quando não há backend. O deploy Vercel hospeda o frontend, não o navegador ou a fila.
+**A versão publicada funciona sem Docker:** [abrir SONDA](https://sonda-snowy.vercel.app). O modo HTTP consulta websites públicos com conexão segura, guarda relatórios em armazenamento privado Vercel Blob e mantém contas, projetos, histórico, comparação, SSE e exportações. Não exige instalar serviços na sua máquina. [Como funciona esse modo](docs/native-vercel.md).
+
+Para executar localmente sem Docker: `pnpm install` e `pnpm dev:native`. O armazenamento local fica em `/storage/native` e os diagnósticos HTTP usam dados reais. A nota é provisória, com cobertura visível. Screenshot, recursos de navegador, axe-core e Lighthouse ficam explicitamente inconclusivos neste modo.
+
+A implementação de scanner com navegador continua disponível separadamente em alvo aprovado. **Scans arbitrários com navegador ficam desabilitados por padrão.** Esse modo completo exige API/worker/runner com barreira de rede independente e PostgreSQL/Redis. Vercel não hospeda o navegador ou a fila. Configure API_URL para selecionar esse backend separado; sem API_URL e com Blob privado conectado, a Vercel usa o backend HTTP nativo.
 
 13 regras SEC, API Fastify, Prisma/PostgreSQL, BullMQ/Redis, eventos SSE persistidos, autenticação com sessões HttpOnly, projetos, histórico, comparações, links revogáveis, exportação JSON/PDF, screenshots e armazenamento local/S3 estão implementados. Axe-core e verificações iniciais de SEO e privacidade usam dados coletados. **Lighthouse não está integrado ao pipeline** e retorna `INCONCLUSIVE`, sem nota fictícia. O adaptador MDN é opcional e ainda não está ligado ao pipeline.
 
 Resultados e limites reais: [relatório de implementação](docs/implementation-report.md).
 
-## Iniciar com Docker
+## Modo completo opcional com Docker
 
 Requisitos: Docker Engine com Compose v2, kernel Linux com nftables (Docker Desktop usa VM Linux). Copie `.env.example` para `.env` e substitua `POSTGRES_PASSWORD` e `RUNNER_TOKEN` por valores aleatórios; token com pelo menos 32 caracteres. Não use esses exemplos em produção.
 

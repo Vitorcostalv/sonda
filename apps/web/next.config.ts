@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 const config: NextConfig = {
+  serverExternalPackages: ["pdfkit"],
   transpilePackages: ["@sonda/contracts", "@sonda/scanner"],
   poweredByHeader: false,
   async headers() {

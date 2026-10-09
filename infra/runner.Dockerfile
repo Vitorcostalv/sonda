@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/playwright:v1.64.0-noble
 USER root
-RUN corepack enable && corepack prepare pnpm@10.13.1 --activate && apt-get update && apt-get install -y --no-install-recommends nftables gosu && rm -rf /var/lib/apt/lists/*
+RUN npm install -g pnpm@10.13.1 --force && apt-get update && apt-get install -y --no-install-recommends nftables gosu && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
 COPY packages/contracts packages/contracts

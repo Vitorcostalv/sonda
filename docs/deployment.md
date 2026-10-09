@@ -1,5 +1,7 @@
 # Deploy
 
+**Modo atualmente publicado, sem Docker:** Next.js + auditor HTTP nativo + Vercel Blob privado. Conta, relatórios, SSE e exports funcionam dentro da Vercel. Veja [operação sem Docker](native-vercel.md). As instruções de API_URL abaixo são para o modo alternativo de navegador completo, que não é o modo publicado.
+
 ## Frontend Vercel
 
 Projeto Next.js com root directory `apps/web`, framework `nextjs`, install `pnpm install --frozen-lockfile`, build `pnpm --filter @sonda/web build`. O workspace raiz precisa estar disponível para resolver `@sonda/contracts`. Node 22.

@@ -427,6 +427,19 @@ export async function buildApp() {
   });
   app.post("/api/v1/scans/:id/cancel", async (req) => {
     const s = await authorizedScan(req, (req.params as { id: string }).id);
+    const u = await user(req),
+      cap =
+        req.headers.authorization?.replace(/^Bearer /, "") ??
+        (req.query as Record<string, string>).token;
+    if (
+      s.requestedBy
+        ? u?.id !== s.requestedBy
+        : !cap || hash(cap) !== s.capabilityHash
+    )
+      throw Object.assign(
+        new Error("Somente o solicitante pode cancelar esta análise."),
+        { statusCode: 403 },
+      );
     await db.scan.updateMany({
       where: { id: s.id, status: { in: ["QUEUED", "RUNNING"] } },
       data: {

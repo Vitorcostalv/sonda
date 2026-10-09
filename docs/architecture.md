@@ -1,5 +1,7 @@
 # Arquitetura implementada
 
+Após a solicitação de executar sem Docker, foi acrescentado um backend nativo Next.js com auditoria HTTP passiva e armazenamento Vercel Blob privado. Esse é o modo publicado. Ele reaproveita as regras SEC, usa DNS/IP pinning e TLS válido, tem contas/relatórios/projetos/SSE/exports, e declara como inconclusivas as verificações que dependem de navegador. Consulte [a arquitetura desse modo](native-vercel.md). O restante deste documento descreve o backend completo opcional com Chromium.
+
 O frontend Next.js envia chamadas de mesma origem por uma rota proxy a uma API Fastify configurada em `API_URL`. TanStack Query mantém estado de leitura, e SSE transmite o estado de scans. Frontend e contratos não importam Prisma, Redis ou Chromium, portanto o build independe desses serviços.
 
 A API valida URL/entrada, identifica usuário ou cria capacidade anônima, limita uso, persiste um Scan e enfileira sua UUID. BullMQ garante identidade estável do job, e `Scan.activeKey` tem índice único para evitar jobs ativos duplicados por ator/destino. Falhas de enqueue marcam o registro como `FAILED`.

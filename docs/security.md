@@ -1,5 +1,7 @@
 # Segurança operacional
 
+**Modo publicado sem Docker:** auditor HTTP em Next.js com IP pinning e validação de destino/redirect/TLS; não executa código do website e não abre navegador. Essa mudança foi solicitada pelo usuário. O isolamento de kernel/navegador e as flags abaixo são específicos do backend completo opcional; não há alegação de que Vercel forneça nftables para funções. Limites, quotas, persistência privada e ausência explícita de verificações de navegador estão em [native-vercel.md](native-vercel.md).
+
 **Não ative scans arbitrários apenas porque o validador passa.** O modo default permite somente a fixture explícita e não fornece acesso aberto a URLs internas. O modo público exige três condições no runner: `PUBLIC_SCANS_ENABLED=true`, `NETWORK_ISOLATION_VERIFIED=true` e `EGRESS_PROXY`. A API exige as duas flags também. Elas são um gate operacional, não atestado automático de proteção.
 
 ## Destinos e conexão
