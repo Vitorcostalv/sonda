@@ -92,6 +92,15 @@ export function Report({
         </div>
         <ExportMenu id={id} query={tokenQuery(id)} />
       </div>
+      {r.mode === "HTTP_ONLY" && (
+        <div className="notice">
+          <strong>Diagnóstico HTTP · sem navegador.</strong> HTTPS, headers,
+          cookies das respostas e HTML original foram inspecionados. Scripts e
+          subrecursos não foram executados. Screenshot, axe-core e Lighthouse
+          não estão disponíveis neste modo. A nota é provisória e acompanha a
+          cobertura.
+        </div>
+      )}
       {r.status !== "COMPLETED" && (
         <div className="notice">
           Esta análise não foi concluída. Dados ausentes e verificações
@@ -102,7 +111,11 @@ export function Report({
         <div className="panel score-panel">
           <ScoreGauge score={r.status === "COMPLETED" ? r.score : null} />
           <div className="score-copy">
-            <h2>Nota técnica de segurança</h2>
+            <h2>
+              {r.coverage !== null && r.coverage < 100
+                ? "Nota provisória de segurança"
+                : "Nota técnica de segurança"}
+            </h2>
             <p>
               Média ponderada das regras aplicáveis. Não representa
               probabilidade de proteção contra ataques.

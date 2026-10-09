@@ -63,6 +63,7 @@ export interface Scan {
   scoringVersion?: string;
 }
 export interface Report extends Scan {
+  mode?: "HTTP_ONLY";
   findings: Finding[];
   resources: {
     sanitizedUrl: string;

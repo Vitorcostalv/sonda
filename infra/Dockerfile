@@ -1,4 +1,5 @@
 FROM node:22-bookworm-slim AS base
+RUN apt-get update && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
 RUN corepack enable && corepack prepare pnpm@10.13.1 --activate
 WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./

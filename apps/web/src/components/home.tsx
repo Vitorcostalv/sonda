@@ -275,7 +275,7 @@ export function Home() {
             {
               icon: Layers3,
               title: "Acompanhe a investigação",
-              text: "Um navegador isolado observa a página. Você acompanha as etapas reais.",
+              text: "O scanner coleta evidências no modo disponível. Você acompanha as etapas reais.",
             },
             {
               icon: ShieldCheck,

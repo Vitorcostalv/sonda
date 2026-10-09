@@ -11,7 +11,9 @@
     }
   },
   "scripts": {
-    "dev": "turbo dev",
+    "dev": "pnpm --filter @sonda/web dev",
+    "dev:native": "node scripts/dev-native.mjs",
+    "dev:all": "turbo dev",
     "build": "turbo build",
     "typecheck": "turbo typecheck",
     "lint": "eslint .",

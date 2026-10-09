@@ -1,12 +1,18 @@
-import { NextRequest } from "next/server";
+import { NextRequest, after } from "next/server";
+import { handleNative } from "@/server/native-api";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 async function proxy(
   request: NextRequest,
   { params }: { params: Promise<{ path: string[] }> },
 ) {
   const base = process.env.API_URL;
-  if (!base)
+  if (
+    !base &&
+    !process.env.BLOB_READ_WRITE_TOKEN &&
+    !process.env.NATIVE_STORAGE_DIR
+  )
     return Response.json(
       {
         error: {
@@ -43,6 +49,7 @@ async function proxy(
         { status: 403 },
       );
   }
+  if (!base) return handleNative(request, path, (task) => after(task));
   const url = new URL(
     path[0] === "health" ? `/${path.join("/")}` : `/api/${path.join("/")}`,
     base,

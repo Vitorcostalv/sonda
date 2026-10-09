@@ -36,7 +36,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     queryFn: async () => {
       const r = await fetch("/api/health/ready");
       if (!r.ok) throw Error("offline");
-      return r.json() as Promise<{ status: string; publicScans: boolean }>;
+      return r.json() as Promise<{
+        status: string;
+        publicScans: boolean;
+        mode?: string;
+      }>;
     },
     retry: false,
   });
@@ -132,9 +136,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           >
             <span className="status-dot" />
             {health?.status === "ready"
-              ? health.publicScans
-                ? "Scanner conectado"
-                : "Modo de alvos aprovados"
+              ? health.mode === "HTTP_ONLY"
+                ? "Diagnóstico HTTP ativo"
+                : health.publicScans
+                  ? "Scanner conectado"
+                  : "Modo de alvos aprovados"
               : "Scanner não conectado"}
           </div>
           <span className="version mono">v0.1</span>

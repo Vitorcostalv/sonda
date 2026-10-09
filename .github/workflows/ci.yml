@@ -52,4 +52,4 @@ jobs:
         with: { fetch-depth: 0 }
       - name: Scan Git history with Gitleaks
         run: |
-          docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.24.3 detect --source=/repo --redact --no-banner
+          docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.24.3 detect --source=/repo --config=/repo/.gitleaks.toml --redact --no-banner

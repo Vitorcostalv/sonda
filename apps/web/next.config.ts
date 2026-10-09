@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 const config: NextConfig = {
-  transpilePackages: ["@sonda/contracts"],
+  transpilePackages: ["@sonda/contracts", "@sonda/scanner"],
   poweredByHeader: false,
   async headers() {
     return [
