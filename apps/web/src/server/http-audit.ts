@@ -28,6 +28,7 @@ export async function pinnedRequest(
       {
         method: "GET",
         agent: false,
+        family: pinned.family,
         signal,
         timeout: 10000,
         headers: {
